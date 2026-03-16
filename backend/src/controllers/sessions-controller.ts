@@ -26,7 +26,7 @@ class SessionsController {
     }
 
     const signOptions: SignOptions = {
-      subject: user.id.toString(),
+      subject: user.id,
       expiresIn: authConfig.jwt.expiresIn as SignOptions['expiresIn'],
     }
 
