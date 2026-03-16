@@ -1,8 +1,7 @@
 import 'dotenv/config'
 import { app } from './app'
+import { env } from '@/env'
 
-const PORT = process.env.PORT || 3333
-
-app.listen(PORT, () => {
-  console.log(`Orbita API rodando na porta ${PORT}`)
+app.listen(env.PORT, () => {
+  console.log(`Orbita API rodando na porta ${env.PORT}`)
 })

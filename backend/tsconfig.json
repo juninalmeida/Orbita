@@ -9,7 +9,11 @@
     "esModuleInterop": true, // permite importar módulos CommonJS com a sintaxe import x from 'x' ao invés de import * as x from 'x'.
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
