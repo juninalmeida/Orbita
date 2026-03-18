@@ -41,6 +41,14 @@ class SessionsController {
     return response.json({ message: 'Logged in successfully' })
   }
 
+  async show(request: Request, response: Response) {
+    const { password: _, ...user } = await prisma.user.findUniqueOrThrow({
+      where: { id: request.user.id },
+    })
+
+    return response.json(user)
+  }
+
   async remove(_request: Request, response: Response) {
     response.clearCookie('token')
     return response.json({ message: 'Logged out successfully' })
