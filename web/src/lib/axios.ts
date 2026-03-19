@@ -8,9 +8,14 @@ export const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isAuthRoute =
+      window.location.pathname === '/login' ||
+      window.location.pathname === '/register'
+
+    if (error.response?.status === 401 && !isAuthRoute) {
       window.location.href = '/login'
     }
-    return Promise.reject(error) // devolve o erro para que quem chamou possa tratar
+
+    return Promise.reject(error)
   },
 )
