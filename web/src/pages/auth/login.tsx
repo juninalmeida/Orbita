@@ -20,12 +20,19 @@ export function LoginPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
   })
 
   async function onSubmit(data: LoginForm) {
+    try {
+      await login(data.email, data.password)
+      navigate('dashboard')
+    } catch {
+      setError('root', { message: 'E-mail ou senha inválidos' })
+    }
     await login(data.email, data.password)
     navigate('/dashboard')
   }
@@ -50,6 +57,12 @@ export function LoginPage() {
           error={errors.password?.message}
           {...register('password')}
         />
+
+        {errors.root && (
+          <p className="text-sm text-[var(--danger)] text-center">
+            {errors.root.message}
+          </p>
+        )}
 
         <Button type="submit" isLoading={isSubmitting} className="w-full mt-2">
           Entrar
