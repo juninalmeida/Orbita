@@ -4,7 +4,7 @@ import { authConfig } from '@/configs/auth'
 import { AppError } from '@/utils/AppError'
 
 interface TokenPayload {
-  role: string
+  role: 'admin' | 'member'
   sub: string
 }
 
