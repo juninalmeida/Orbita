@@ -8,6 +8,7 @@ import { taskRoutes } from './tasks-routes'
 import { adminRoutes } from './admin-routes'
 import { assignmentsRoutes } from './assignments-routes'
 import { usersPublicRoutes } from './users-public-routes'
+import { profileRoutes } from './profile-routes'
 import { ensureAuthenticated } from '@/middlewares/ensure-authenticated'
 import { assignmentsController } from '@/controllers/assignments-controller'
 
@@ -18,6 +19,7 @@ routes.get('/health', (_req, res) => {
 })
 
 routes.use('/users', usersRoutes)
+routes.use('/users', profileRoutes)
 routes.use('/sessions', sessionsRoutes)
 routes.use('/teams', teamsRoutes)
 routes.use('/teams/:id/tasks', teamTasksRoutes)

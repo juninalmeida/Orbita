@@ -16,6 +16,7 @@ app.use(
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   }),
 )
+app.use('/users/profile/avatar', express.json({ limit: '1mb' }))
 app.use(express.json({ limit: '10kb' }))
 app.use(cookieParser())
 app.use(routes)
