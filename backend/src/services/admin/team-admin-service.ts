@@ -80,12 +80,12 @@ class TeamAdminService {
     if (!team) throw new AppError('Team not found', 404)
 
     const user = await prisma.user.findUnique({ where: { email } })
-    if (!user) throw new AppError('Usuário não encontrado com este e-mail', 404)
+    if (!user) throw new AppError('User not found with this email', 404)
 
     const alreadyMember = await prisma.teamMember.findFirst({
       where: { teamId, userId: user.id },
     })
-    if (alreadyMember) throw new AppError('Usuário já é membro desta equipe', 409)
+    if (alreadyMember) throw new AppError('User is already a member of this team', 409)
 
     await prisma.teamMember.create({ data: { teamId, userId: user.id } })
 
@@ -96,7 +96,7 @@ class TeamAdminService {
     const member = await prisma.teamMember.findFirst({
       where: { teamId, userId },
     })
-    if (!member) throw new AppError('Membro não encontrado nesta equipe', 404)
+    if (!member) throw new AppError('Member not found in this team', 404)
 
     await ownershipTransfer.transfer(userId, adminId, { teamId })
 

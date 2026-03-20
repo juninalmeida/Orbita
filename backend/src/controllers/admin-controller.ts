@@ -66,7 +66,7 @@ class AdminController {
     const count = await teamAdminService.archiveAllTasks(id, request.user.id)
 
     return response.json({
-      message: `${count} tasks arquivadas com sucesso`,
+      message: `${count} tasks archived successfully`,
       count,
     })
   }
@@ -78,7 +78,7 @@ class AdminController {
     const user = await teamAdminService.addMember(id, email)
 
     return response.status(201).json({
-      message: 'Membro adicionado com sucesso',
+      message: 'Member added successfully',
       user,
     })
   }
@@ -90,7 +90,7 @@ class AdminController {
 
     await teamAdminService.removeMember(id, userId, request.user.id)
 
-    return response.json({ message: 'Membro removido com sucesso' })
+    return response.json({ message: 'Member removed successfully' })
   }
 
   // ── Tasks ──
