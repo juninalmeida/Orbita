@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, LogOut, Archive, Inbox, Search, CheckCircle2, Users } from 'lucide-react'
+import { LayoutDashboard, LogOut, Archive, Inbox, Search, CheckCircle2, Users, User } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { usePendingRequests } from '@/hooks/use-admin'
 
@@ -76,6 +76,16 @@ export function MobileNav() {
             {isAdmin && item.showBadge && <AdminRequestsBadgeMobile />}
           </button>
         ))}
+
+        <button
+          onClick={() => navigate('/profile')}
+          className={`flex flex-col items-center gap-1 text-xs transition-colors cursor-pointer ${
+            pathname === '/profile' ? 'text-emerald-400' : 'text-[var(--text-muted)]'
+          }`}
+        >
+          <User size={18} />
+          <span style={{ fontFamily: 'Syne, sans-serif' }}>Perfil</span>
+        </button>
 
         <button
           onClick={() => signOut()}

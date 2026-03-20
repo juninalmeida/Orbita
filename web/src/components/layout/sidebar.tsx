@@ -127,22 +127,31 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* User footer */}
       <div className='p-2 border-t border-white/[0.06]'>
         <div className={`flex items-center rounded-xl transition-all duration-300 ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}`}>
-          <div
-            className='w-7 h-7 rounded-full bg-emerald-600/60 flex items-center justify-center text-xs font-semibold text-emerald-100 flex-shrink-0 ring-1 ring-emerald-500/20 cursor-pointer'
-            title={collapsed ? user?.name : undefined}
-          >
-            {user?.name?.charAt(0).toUpperCase()}
-          </div>
+          <Link to='/profile' title={collapsed ? user?.name : 'Meu perfil'}>
+            {user?.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className='w-7 h-7 rounded-full object-cover flex-shrink-0 ring-1 ring-emerald-500/20'
+              />
+            ) : (
+              <div
+                className='w-7 h-7 rounded-full bg-emerald-600/60 flex items-center justify-center text-xs font-semibold text-emerald-100 flex-shrink-0 ring-1 ring-emerald-500/20'
+              >
+                {user?.name?.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </Link>
           {!collapsed && (
             <>
-              <div className='flex-1 min-w-0'>
+              <Link to='/profile' className='flex-1 min-w-0 hover:opacity-80 transition-opacity'>
                 <p className='text-xs font-medium text-[var(--text)] truncate'>
                   {user?.name}
                 </p>
                 <p className='text-xs text-[var(--text-muted)] truncate'>
                   {user?.email}
                 </p>
-              </div>
+              </Link>
               <button
                 onClick={() => signOut()}
                 className='text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors duration-150 cursor-pointer flex-shrink-0'

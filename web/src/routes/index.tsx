@@ -15,6 +15,8 @@ import { AvailableTasks } from '@/pages/available-tasks'
 import { CompletedTasksPage } from '@/pages/completed-tasks'
 import { TeamsListPage } from '@/pages/teams-list'
 import { MemberTeamDetailPage } from '@/pages/member-team-detail'
+import { ProfilePage } from '@/pages/profile'
+import { UserProfilePage } from '@/pages/user-profile'
 
 export function AppRoutes() {
   return (
@@ -45,6 +47,14 @@ export function AppRoutes() {
           <Route path="/dashboard/teams" element={<TeamsListPage />} />
           <Route path="/dashboard/teams/:id" element={<MemberTeamDetailPage />} />
           <Route path="/teams/:id" element={<TeamDetailPage />} />
+        </Route>
+      </Route>
+
+      {/* Shared authenticated routes (both admin and member) */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/users/:id" element={<UserProfilePage />} />
         </Route>
       </Route>
 
