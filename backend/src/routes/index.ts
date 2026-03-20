@@ -7,6 +7,7 @@ import { taskRequestsRoutes } from './task-requests-routes'
 import { taskRoutes } from './tasks-routes'
 import { adminRoutes } from './admin-routes'
 import { assignmentsRoutes } from './assignments-routes'
+import { usersPublicRoutes } from './users-public-routes'
 import { ensureAuthenticated } from '@/middlewares/ensure-authenticated'
 import { assignmentsController } from '@/controllers/assignments-controller'
 
@@ -24,6 +25,7 @@ routes.use('/tasks', taskRequestsRoutes)
 routes.use('/tasks', taskRoutes)
 routes.use('/admin', adminRoutes)
 routes.use('/task-assignments', assignmentsRoutes)
+routes.use('/users/list', usersPublicRoutes)
 routes.post('/tasks/:id/request-help', ensureAuthenticated, assignmentsController.requestHelp)
 routes.delete('/tasks/:id/assignments/:userId', ensureAuthenticated, assignmentsController.remove)
 
