@@ -4,4 +4,7 @@ node_modules
 dist
 build
 coverage
-*.log 
+*.log
+.env
+.env.local
+.env.production
