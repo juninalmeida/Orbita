@@ -8,6 +8,7 @@ interface KanbanColumnProps {
   tasks: Task[]
   onAddTask: () => void
   onStatusChange: (taskId: string, status: TaskStatus) => void
+  onSelect: (taskId: string) => void
 }
 
 const statusColors: Record<TaskStatus, string> = {
@@ -22,6 +23,7 @@ export function KanbanColumn({
   tasks,
   onAddTask,
   onStatusChange,
+  onSelect,
 }: KanbanColumnProps) {
   return (
     <div className="flex flex-col w-72 flex-shrink-0">
@@ -48,7 +50,12 @@ export function KanbanColumn({
 
       <div className="flex flex-col gap-2">
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} onStatusChange={onStatusChange} />
+          <TaskCard
+            key={task.id}
+            task={task}
+            onStatusChange={onStatusChange}
+            onSelect={onSelect}
+          />
         ))}
       </div>
     </div>

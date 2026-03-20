@@ -3,6 +3,7 @@ import type { TaskStatus } from '@/types/task'
 import { useTasks } from '@/hooks/use-tasks'
 import { KanbanColumn } from './kanban-column'
 import { CreateTaskDrawer } from './create-task-drawer'
+import { TaskDetailModal } from '@/components/task/task-detail-modal'
 
 interface KanbanBoardProps {
   teamId: string
@@ -17,6 +18,7 @@ const columns: { title: string; status: TaskStatus }[] = [
 export function KanbanBoard({ teamId }: KanbanBoardProps) {
   const { tasks, isLoading, changeStatus } = useTasks(teamId)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
   if (isLoading) {
     return (
@@ -51,6 +53,7 @@ export function KanbanBoard({ teamId }: KanbanBoardProps) {
             onStatusChange={(taskId, status) =>
               changeStatus({ taskId, status })
             }
+            onSelect={(taskId) => setSelectedTaskId(taskId)}
           />
         ))}
       </div>
@@ -59,6 +62,11 @@ export function KanbanBoard({ teamId }: KanbanBoardProps) {
         teamId={teamId}
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
+      />
+
+      <TaskDetailModal
+        taskId={selectedTaskId}
+        onClose={() => setSelectedTaskId(null)}
       />
     </>
   )
