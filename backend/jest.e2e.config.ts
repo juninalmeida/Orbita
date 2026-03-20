@@ -6,11 +6,12 @@ const config: Config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  testMatch: ['**/services/__tests__/**/*.test.ts'],
+  testMatch: ['**/__tests__/e2e/**/*.test.ts'],
   clearMocks: true,
   transform: {
     '^.+\\.ts$': ['ts-jest', { diagnostics: false }],
   },
+  testTimeout: 15000,
 }
 
 export default config
