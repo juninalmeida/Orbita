@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: orbita-api
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build && npm run prisma:deploy
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: WEB_URL
+        sync: false
