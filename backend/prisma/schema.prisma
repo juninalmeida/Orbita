@@ -24,18 +24,43 @@ enum TaskPriority {
   low
 }
 
+enum RequestType {
+  view
+}
+
+enum RequestStatus {
+  pending
+  approved
+  rejected
+}
+
+enum AssignmentRole {
+  owner
+  helper
+}
+
+enum AssignmentStatus {
+  assigned
+  pending
+  rejected
+}
+
 model User {
   id        String   @id @default(uuid())
   name      String   @db.VarChar(100)
   email     String   @unique @db.VarChar(150)
   password  String   @db.VarChar(255)
   role      Role     @default(member)
+  active    Boolean  @default(true)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  teams         TeamMember[]
-  tasks         Task[]        @relation("AssignedTasks")
-  taskHistories TaskHistory[]
+  teams              TeamMember[]
+  taskHistories      TaskHistory[]
+  taskRequests       TaskRequest[]
+  resolvedRequests   TaskRequest[]      @relation("ResolvedRequests")
+  taskAssignments    TaskAssignment[]   @relation("TaskAssignments")
+  assignmentRequests TaskAssignment[]   @relation("AssignmentRequester")
 
   @@map("users")
 }
@@ -72,28 +97,70 @@ model Task {
   description String?
   status      TaskStatus   @default(pending)
   priority    TaskPriority @default(medium)
-  assignedTo  String?      @map("assigned_to")
-  teamId      String       @map("team_id")
+  teamId      String?      @map("team_id")
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
 
-  assignee User?        @relation("AssignedTasks", fields: [assignedTo], references: [id], onDelete: SetNull)
-  team     Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  history  TaskHistory[]
+  team        Team?         @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  history     TaskHistory[]
+  archived    Boolean       @default(false)
+  archivedAt  DateTime?     @map("archived_at")
+  deleted     Boolean       @default(false)
+  deletedAt   DateTime?     @map("deleted_at")
+  requests    TaskRequest[]
+  assignments TaskAssignment[]
 
   @@map("tasks")
 }
 
 model TaskHistory {
-  id        String     @id @default(uuid())
-  taskId    String     @map("task_id")
-  changedBy String     @map("changed_by")
-  oldStatus TaskStatus @map("old_status")
-  newStatus TaskStatus @map("new_status")
-  changedAt DateTime   @default(now()) @map("changed_at")
+  id            String     @id @default(uuid())
+  taskId        String     @map("task_id")
+  changedBy     String     @map("changed_by")
+  oldStatus     TaskStatus @map("old_status")
+  newStatus     TaskStatus @map("new_status")
+  justification String?
+  changedAt     DateTime   @default(now()) @map("changed_at")
 
   task    Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
   changer User @relation(fields: [changedBy], references: [id], onDelete: Cascade)
 
   @@map("tasks_history")
+}
+
+model TaskRequest {
+  id          String        @id @default(uuid())
+  taskId      String        @map("task_id")
+  task        Task          @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId      String        @map("user_id")
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        RequestType
+  status      RequestStatus @default(pending)
+  message     String?       @db.VarChar(500)
+  resolvedBy  String?       @map("resolved_by")
+  resolver    User?         @relation("ResolvedRequests", fields: [resolvedBy], references: [id], onDelete: SetNull)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  resolvedAt  DateTime?     @map("resolved_at")
+
+  @@unique([taskId, userId, type])
+  @@index([status])
+  @@map("task_requests")
+}
+
+model TaskAssignment {
+  id            String           @id @default(uuid())
+  taskId        String           @map("task_id")
+  userId        String           @map("user_id")
+  role          AssignmentRole
+  status        AssignmentStatus
+  requestedById String?          @map("requested_by_id")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  task        Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user        User  @relation("TaskAssignments", fields: [userId], references: [id], onDelete: Cascade)
+  requestedBy User? @relation("AssignmentRequester", fields: [requestedById], references: [id], onDelete: SetNull)
+
+  @@unique([taskId, userId])
+  @@map("task_assignments")
 }
