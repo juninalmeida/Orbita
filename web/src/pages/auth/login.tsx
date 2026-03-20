@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -5,7 +6,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { AuthLayout } from './auth-layout'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { login } from '@/api/auth'
+import { login, getMe } from '@/api/auth'
 
 const loginSchema = z.object({
   email: z.string().email('E-mail inválido'),
@@ -16,6 +17,7 @@ type LoginForm = z.infer<typeof loginSchema>
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const [isLeaving, setIsLeaving] = useState(false)
 
   const {
     register,
@@ -29,17 +31,18 @@ export function LoginPage() {
   async function onSubmit(data: LoginForm) {
     try {
       await login(data.email, data.password)
-      navigate('dashboard')
+      const user = await getMe()
+      setIsLeaving(true)
+      const target = user.role === 'admin' ? '/admin' : '/dashboard'
+      setTimeout(() => navigate(target), 600)
     } catch {
       setError('root', { message: 'E-mail ou senha inválidos' })
     }
-    await login(data.email, data.password)
-    navigate('/dashboard')
   }
 
   return (
-    <AuthLayout title="Orbita" subtitle="Entre na sua conta para continuar">
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+    <AuthLayout title="Orbita" subtitle="Entre na sua conta para continuar" isLeaving={isLeaving}>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
         <Input
           id="email"
           label="E-mail"
@@ -58,20 +61,33 @@ export function LoginPage() {
           {...register('password')}
         />
 
-        {errors.root && (
-          <p className="text-sm text-[var(--danger)] text-center">
-            {errors.root.message}
-          </p>
-        )}
+        <p
+          className={`text-sm text-[var(--danger)] text-center py-1 transition-opacity duration-200 ${
+            errors.root ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          {errors.root?.message || '\u00A0'}
+        </p>
 
-        <Button type="submit" isLoading={isSubmitting} className="w-full mt-2">
+        <Button type="submit" isLoading={isSubmitting || isLeaving} className="w-full mt-1">
           Entrar
         </Button>
       </form>
 
-      <p className="text-center text-sm text-[var(--text-muted)] mt-4">
+      <div className="flex items-center gap-3 my-5">
+        <div className="flex-1 h-px bg-white/[0.06]" />
+        <span className="text-xs text-[var(--text-muted)]/60 uppercase tracking-widest">
+          ou
+        </span>
+        <div className="flex-1 h-px bg-white/[0.06]" />
+      </div>
+
+      <p className="text-center text-sm text-[var(--text-muted)]">
         Não tem uma conta?{' '}
-        <Link to="/register" className="text-[var(--primary)] hover:underline">
+        <Link
+          to="/register"
+          className="text-emerald-400 hover:text-emerald-300 transition-colors duration-200"
+        >
           Criar conta
         </Link>
       </p>

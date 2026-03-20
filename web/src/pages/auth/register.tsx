@@ -33,7 +33,7 @@ export function RegisterPage() {
 
   return (
     <AuthLayout title="Criar conta" subtitle="Comece a gerenciar seus projetos">
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
         <Input
           id="name"
           label="Nome"
@@ -61,14 +61,25 @@ export function RegisterPage() {
           {...register('password')}
         />
 
-        <Button type="submit" isLoading={isSubmitting} className="w-full mt-2">
+        <Button type="submit" isLoading={isSubmitting} className="w-full mt-1">
           Criar conta
         </Button>
       </form>
 
-      <p className="text-center text-sm text-[var(--text-muted)] mt-4">
+      <div className="flex items-center gap-3 my-5">
+        <div className="flex-1 h-px bg-white/[0.06]" />
+        <span className="text-xs text-[var(--text-muted)]/60 uppercase tracking-widest">
+          ou
+        </span>
+        <div className="flex-1 h-px bg-white/[0.06]" />
+      </div>
+
+      <p className="text-center text-sm text-[var(--text-muted)]">
         Já tem uma conta?{' '}
-        <Link to="/login" className="text-[var(--primary)] hover:underline">
+        <Link
+          to="/login"
+          className="text-emerald-400 hover:text-emerald-300 transition-colors duration-200"
+        >
           Entrar
         </Link>
       </p>
