@@ -17,6 +17,6 @@ const loginLimiter = rateLimit({
 sessionsRoutes.get('/me', ensureAuthenticated, sessionsController.show)
 
 sessionsRoutes.post('/', loginLimiter, sessionsController.create) // login
-sessionsRoutes.delete('/', sessionsController.remove) // logout
+sessionsRoutes.delete('/', ensureAuthenticated, sessionsController.remove) // logout
 
 export { sessionsRoutes }
