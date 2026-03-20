@@ -1,10 +1,15 @@
 import { useState } from 'react'
-import { X, Trash2, Archive, Check, XCircle, UserPlus } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useTaskDetail } from '@/hooks/use-task-detail'
 import { useAdminTeamTasks, useAdminUsers } from '@/hooks/use-admin'
 import { HistoryTimeline } from './history-timeline'
 import { JustificationModal } from './justification-modal'
 import { RequestHelpModal } from './request-help-modal'
+import { TaskTitleEditor } from './task-title-editor'
+import { TaskDescriptionEditor } from './task-description-editor'
+import { TaskAssignmentsSection } from './task-assignments-section'
+import { TaskStatusSelector } from './task-status-selector'
+import { TaskAdminActions } from './task-admin-actions'
 import { useRemoveHelper } from '@/hooks/use-assignments'
 import { useAuth } from '@/hooks/use-auth'
 import { toast } from 'sonner'
@@ -20,19 +25,11 @@ interface TaskDetailModalProps {
   onArchived?: () => void
 }
 
-const statusLabels: Record<TaskStatus, string> = {
-  pending: 'Pendente',
-  in_progress: 'Em andamento',
-  completed: 'Concluído',
-}
-
 const priorityStyles = {
   high: 'text-[var(--danger)] bg-[var(--danger)]/10',
   medium: 'text-[var(--warning)] bg-[var(--warning)]/10',
   low: 'text-[var(--text-muted)] bg-white/5',
 }
-
-const allStatuses: TaskStatus[] = ['pending', 'in_progress', 'completed']
 
 export function TaskDetailModal({
   taskId,
@@ -44,31 +41,47 @@ export function TaskDetailModal({
 }: TaskDetailModalProps) {
   const { task, history, isLoadingTask, changeStatus } = useTaskDetail(taskId)
   const adminHook = useAdminTeamTasks(teamId ?? '')
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [isEditingTitle, setIsEditingTitle] = useState(false)
-  const [isEditingDesc, setIsEditingDesc] = useState(false)
-  const [editTitle, setEditTitle] = useState('')
-  const [editDesc, setEditDesc] = useState('')
   const [pendingStatus, setPendingStatus] = useState<TaskStatus | null>(null)
   const [showHelpModal, setShowHelpModal] = useState(false)
   const { remove: removeHelper } = useRemoveHelper()
   const { user } = useAuth()
   const adminUsers = useAdminUsers(isAdmin)
 
+  const isOwner = task?.assignments?.some(a => a.user.id === user?.id && a.role === 'owner') ?? false
   const canChangeStatus = isAdmin || (task?.assignments?.some(a => a.user.id === user?.id && a.status === 'assigned') ?? false)
 
   if (!taskId) return null
+
+  function handleSaveTitle(title: string) {
+    if (!taskId) return
+    adminHook.editTask(
+      { taskId, body: { title } },
+      {
+        onSuccess: () => toast.success('Title updated'),
+        onError: () => toast.error('Failed to update title'),
+      },
+    )
+  }
+
+  function handleSaveDescription(description: string | null) {
+    if (!taskId) return
+    adminHook.editTask(
+      { taskId, body: { description } },
+      {
+        onSuccess: () => toast.success('Description updated'),
+        onError: () => toast.error('Failed to update description'),
+      },
+    )
+  }
 
   function handleDelete() {
     if (!taskId) return
     adminHook.removeTask(taskId, {
       onSuccess: () => {
-        toast.success('Tarefa excluida com sucesso')
+        toast.success('Task deleted successfully')
         onDeleted?.()
       },
-      onError: () => {
-        toast.error('Erro ao excluir tarefa')
-      },
+      onError: () => toast.error('Failed to delete task'),
     })
   }
 
@@ -78,59 +91,19 @@ export function TaskDetailModal({
       { taskId, archived: true },
       {
         onSuccess: () => {
-          toast.success('Tarefa arquivada com sucesso')
+          toast.success('Task archived successfully')
           onArchived?.()
         },
-        onError: () => {
-          toast.error('Erro ao arquivar tarefa')
-        },
-      },
-    )
-  }
-
-  function handleSaveTitle() {
-    if (!taskId || !editTitle.trim()) return
-    adminHook.editTask(
-      { taskId, body: { title: editTitle.trim() } },
-      {
-        onSuccess: () => {
-          toast.success('Título atualizado')
-          setIsEditingTitle(false)
-        },
-        onError: () => {
-          toast.error('Erro ao atualizar título')
-        },
-      },
-    )
-  }
-
-  function handleSaveDesc() {
-    if (!taskId) return
-    adminHook.editTask(
-      { taskId, body: { description: editDesc.trim() || null } },
-      {
-        onSuccess: () => {
-          toast.success('Descrição atualizada')
-          setIsEditingDesc(false)
-        },
-        onError: () => {
-          toast.error('Erro ao atualizar descrição')
-        },
+        onError: () => toast.error('Failed to archive task'),
       },
     )
   }
 
   function handleResolveRequest(requestId: string, status: 'approved' | 'rejected') {
-    // This would need to use resolveRequest from use-admin, but it's not
-    // directly available here. We import and call the API directly.
     import('@/api/admin').then(({ resolveRequest }) => {
       resolveRequest(requestId, status)
-        .then(() => {
-          toast.success(status === 'approved' ? 'Solicitação aprovada' : 'Solicitação rejeitada')
-        })
-        .catch(() => {
-          toast.error('Erro ao processar solicitação')
-        })
+        .then(() => toast.success(status === 'approved' ? 'Request approved' : 'Request rejected'))
+        .catch(() => toast.error('Failed to process request'))
     })
   }
 
@@ -145,17 +118,12 @@ export function TaskDetailModal({
           boxShadow: '0 0 60px rgba(16, 185, 129, 0.04), 0 25px 50px -12px rgba(0, 0, 0, 0.5)',
         }}
       >
+        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
-          <span
-            className="text-xs font-mono text-[var(--text-muted)]"
-            style={{ fontFamily: 'JetBrains Mono, monospace' }}
-          >
+          <span className="text-xs font-mono text-[var(--text-muted)]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
             ORB-{taskId.slice(0, 4).toUpperCase()}
           </span>
-          <button
-            onClick={onClose}
-            className="text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer"
-          >
+          <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer">
             <X size={16} />
           </button>
         </div>
@@ -166,96 +134,13 @@ export function TaskDetailModal({
           </div>
         ) : task ? (
           <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-5">
-            {/* Title */}
+            {/* Title & Description */}
             <div>
-              {isAdmin && isEditingTitle ? (
-                <div className="flex gap-2">
-                  <input
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    className="flex-1 bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-1.5 text-base font-semibold text-[var(--text)] outline-none focus:border-emerald-500/40"
-                    style={{ fontFamily: 'Syne, sans-serif' }}
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleSaveTitle()
-                      if (e.key === 'Escape') setIsEditingTitle(false)
-                    }}
-                  />
-                  <button
-                    onClick={handleSaveTitle}
-                    className="text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer"
-                  >
-                    <Check size={16} />
-                  </button>
-                </div>
-              ) : (
-                <h2
-                  className={`text-base font-semibold text-[var(--text)] mb-1 ${isAdmin ? 'cursor-pointer hover:text-emerald-400 transition-colors' : ''}`}
-                  style={{ fontFamily: 'Syne, sans-serif' }}
-                  onClick={() => {
-                    if (isAdmin) {
-                      setEditTitle(task.title)
-                      setIsEditingTitle(true)
-                    }
-                  }}
-                >
-                  {task.title}
-                </h2>
-              )}
-
-              {/* Description */}
-              {isAdmin && isEditingDesc ? (
-                <div className="flex flex-col gap-2 mt-1">
-                  <textarea
-                    value={editDesc}
-                    onChange={(e) => setEditDesc(e.target.value)}
-                    rows={3}
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] outline-none focus:border-emerald-500/40 resize-none"
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Escape') setIsEditingDesc(false)
-                    }}
-                  />
-                  <div className="flex gap-2 justify-end">
-                    <button
-                      onClick={() => setIsEditingDesc(false)}
-                      className="text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={handleSaveDesc}
-                      className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer"
-                    >
-                      Salvar
-                    </button>
-                  </div>
-                </div>
-              ) : task.description ? (
-                <p
-                  className={`text-sm text-[var(--text-muted)] ${isAdmin ? 'cursor-pointer hover:text-[var(--text)] transition-colors' : ''}`}
-                  onClick={() => {
-                    if (isAdmin) {
-                      setEditDesc(task.description ?? '')
-                      setIsEditingDesc(true)
-                    }
-                  }}
-                >
-                  {task.description}
-                </p>
-              ) : isAdmin ? (
-                <p
-                  className="text-sm text-[var(--text-muted)]/50 cursor-pointer hover:text-[var(--text-muted)] transition-colors italic"
-                  onClick={() => {
-                    setEditDesc('')
-                    setIsEditingDesc(true)
-                  }}
-                >
-                  Adicionar descrição...
-                </p>
-              ) : null}
+              <TaskTitleEditor title={task.title} isAdmin={isAdmin} onSave={handleSaveTitle} />
+              <TaskDescriptionEditor description={task.description} isAdmin={isAdmin} onSave={handleSaveDescription} />
             </div>
 
+            {/* Priority & quick avatar preview */}
             <div className="flex items-center gap-3">
               <span className={`text-xs px-2 py-0.5 rounded font-medium ${priorityStyles[task.priority]}`}>
                 {task.priority}
@@ -269,49 +154,19 @@ export function TaskDetailModal({
             </div>
 
             {/* Assignments */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
-                  Atribuídos
-                </p>
-                {(isAdmin || task.assignments?.some(a => a.user.id === user?.id && a.role === 'owner')) && (
-                  <button
-                    onClick={() => setShowHelpModal(true)}
-                    className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer"
-                  >
-                    <UserPlus size={12} />
-                    Pedir ajuda
-                  </button>
-                )}
-              </div>
-              <div className="flex flex-col gap-1.5">
-                {task.assignments?.filter(a => a.status === 'assigned').map((a) => (
-                  <div key={a.user.id} className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-white/[0.02]">
-                    <div className="flex items-center gap-2">
-                      <UserAvatar name={a.user.name} avatar={a.user.avatar} size="xs" userId={a.user.id} />
-                      <span className="text-xs text-[var(--text)]">{a.user.name}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${a.role === 'owner' ? 'text-emerald-400 bg-emerald-400/10' : 'text-[var(--text-muted)] bg-white/5'}`}>
-                        {a.role === 'owner' ? 'Dono' : 'Ajudante'}
-                      </span>
-                    </div>
-                    {a.role === 'helper' && (isAdmin || task.assignments?.some(x => x.user.id === user?.id && x.role === 'owner')) && (
-                      <button
-                        onClick={() => removeHelper({ taskId: task.id, userId: a.user.id })}
-                        className="text-[var(--text-muted)] hover:text-rose-400 transition-colors cursor-pointer"
-                      >
-                        <X size={12} />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+            <TaskAssignmentsSection
+              assignments={task.assignments ?? []}
+              isAdmin={isAdmin}
+              isOwner={isOwner}
+              onRemoveHelper={(userId) => removeHelper({ taskId: task.id, userId })}
+              onRequestHelp={() => setShowHelpModal(true)}
+            />
 
             {/* Admin: Direct assign */}
             {isAdmin && (
               <div>
                 <p className="text-xs font-medium text-[var(--text-muted)] mb-2 uppercase tracking-wider">
-                  Atribuir diretamente
+                  Direct assign
                 </p>
                 <select
                   value=""
@@ -320,15 +175,15 @@ export function TaskDetailModal({
                       adminUsers.assignToTask(
                         { taskId: task.id, userId: e.target.value },
                         {
-                          onSuccess: () => toast.success('Membro atribuído com sucesso'),
-                          onError: () => toast.error('Erro ao atribuir membro'),
+                          onSuccess: () => toast.success('Member assigned successfully'),
+                          onError: () => toast.error('Failed to assign member'),
                         },
                       )
                     }
                   }}
                   className="w-full px-3 py-2 rounded-lg text-sm text-[var(--text)] outline-none border border-white/[0.06] bg-white/[0.04] focus:border-emerald-500/40 cursor-pointer"
                 >
-                  <option value="">Selecionar usuario...</option>
+                  <option value="">Select user...</option>
                   {adminUsers.users
                     ?.filter((u: { id: string }) => !task.assignments?.some(a => a.user.id === u.id))
                     .map((u: { id: string; name: string }) => (
@@ -338,49 +193,24 @@ export function TaskDetailModal({
               </div>
             )}
 
-            <div>
-              <p className="text-xs font-medium text-[var(--text-muted)] mb-2 uppercase tracking-wider">
-                Status
-              </p>
-              {canChangeStatus ? (
-                <div className="flex flex-wrap gap-2">
-                  {allStatuses.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => {
-                        if (s === task.status) return
-                        if (isAdmin) {
-                          changeStatus({ status: s })
-                        } else {
-                          setPendingStatus(s)
-                        }
-                      }}
-                      className={`text-xs px-3 py-1.5 rounded-lg border transition-all duration-150 cursor-pointer
-                        ${
-                          task.status === s
-                            ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
-                            : 'bg-transparent border-white/[0.06] text-[var(--text-muted)] hover:border-white/[0.12]'
-                        }`}
-                    >
-                      {statusLabels[s]}
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <span className="text-xs px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 inline-block">
-                  {statusLabels[task.status]}
-                </span>
-              )}
-            </div>
+            {/* Status */}
+            <TaskStatusSelector
+              currentStatus={task.status}
+              canChange={canChangeStatus}
+              isAdmin={isAdmin}
+              onStatusChange={(status) => changeStatus({ status })}
+              onStatusChangeWithJustification={(status) => setPendingStatus(status)}
+            />
 
+            {/* History */}
             <div>
               <p className="text-xs font-medium text-[var(--text-muted)] mb-3 uppercase tracking-wider">
-                Histórico
+                History
               </p>
               <HistoryTimeline history={history} />
             </div>
 
-            {/* Admin: Pending requests section */}
+            {/* Admin: Pending requests */}
             {isAdmin && 'requests' in task && Array.isArray((task as Record<string, unknown>).requests) && (() => {
                 type TaskRequestItem = {
                   id: string
@@ -394,30 +224,20 @@ export function TaskDetailModal({
                 return (
                   <div>
                     <p className="text-xs font-medium text-[var(--text-muted)] mb-3 uppercase tracking-wider">
-                      Solicitações pendentes
+                      Pending requests
                     </p>
                     <div className="flex flex-col gap-2">
                       {requests.map((req) => (
                         <div
                           key={req.id}
                           className="rounded-lg p-3 border border-white/[0.06]"
-                          style={{
-                            background: 'linear-gradient(145deg, rgba(10, 18, 14, 0.4), rgba(8, 12, 10, 0.5))',
-                          }}
+                          style={{ background: 'linear-gradient(145deg, rgba(10, 18, 14, 0.4), rgba(8, 12, 10, 0.5))' }}
                         >
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">
-                              {req.user && (
-                                <span className="text-xs text-[var(--text)]">{req.user.name}</span>
-                              )}
-                              <span
-                                className={`text-xs px-1.5 py-0.5 rounded ${
-                                  req.type === 'view'
-                                    ? 'text-teal-400 bg-teal-400/10'
-                                    : 'text-emerald-400 bg-emerald-400/10'
-                                }`}
-                              >
-                                {req.type === 'view' ? 'Visualizar' : 'Participar'}
+                              {req.user && <span className="text-xs text-[var(--text)]">{req.user.name}</span>}
+                              <span className={`text-xs px-1.5 py-0.5 rounded ${req.type === 'view' ? 'text-teal-400 bg-teal-400/10' : 'text-emerald-400 bg-emerald-400/10'}`}>
+                                {req.type === 'view' ? 'View' : 'Participate'}
                               </span>
                             </div>
                             <div className="flex gap-1">
@@ -425,21 +245,17 @@ export function TaskDetailModal({
                                 onClick={() => handleResolveRequest(req.id, 'approved')}
                                 className="text-xs px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors cursor-pointer"
                               >
-                                Aprovar
+                                Approve
                               </button>
                               <button
                                 onClick={() => handleResolveRequest(req.id, 'rejected')}
                                 className="text-xs px-2 py-1 rounded bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
                               >
-                                Rejeitar
+                                Reject
                               </button>
                             </div>
                           </div>
-                          {req.message && (
-                            <p className="text-xs text-[var(--text-muted)] italic mt-1">
-                              {req.message}
-                            </p>
-                          )}
+                          {req.message && <p className="text-xs text-[var(--text-muted)] italic mt-1">{req.message}</p>}
                         </div>
                       ))}
                     </div>
@@ -447,46 +263,14 @@ export function TaskDetailModal({
                 )
               })()}
 
-            {/* Admin action buttons */}
+            {/* Admin actions */}
             {isAdmin && (
-              <div className="flex gap-2 pt-2 border-t border-white/[0.06]">
-                <button
-                  onClick={handleArchive}
-                  disabled={adminHook.isArchiving}
-                  className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg border border-white/[0.06] text-[var(--text-muted)] hover:border-white/[0.12] hover:text-[var(--text)] transition-all cursor-pointer disabled:opacity-40"
-                >
-                  <Archive size={13} />
-                  Arquivar
-                </button>
-                {showDeleteConfirm ? (
-                  <div className="flex items-center gap-2 ml-auto">
-                    <span className="text-xs text-[var(--text-muted)]">Confirmar?</span>
-                    <button
-                      onClick={handleDelete}
-                      disabled={adminHook.isRemoving}
-                      className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer disabled:opacity-40"
-                    >
-                      <Check size={13} />
-                      Sim
-                    </button>
-                    <button
-                      onClick={() => setShowDeleteConfirm(false)}
-                      className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg border border-white/[0.06] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer"
-                    >
-                      <XCircle size={13} />
-                      Nao
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-all cursor-pointer ml-auto"
-                  >
-                    <Trash2 size={13} />
-                    Excluir
-                  </button>
-                )}
-              </div>
+              <TaskAdminActions
+                onArchive={handleArchive}
+                onDelete={handleDelete}
+                isArchiving={adminHook.isArchiving}
+                isDeleting={adminHook.isRemoving}
+              />
             )}
           </div>
         ) : null}
@@ -505,9 +289,7 @@ export function TaskDetailModal({
         isOpen={pendingStatus !== null}
         newStatus={pendingStatus ?? ''}
         onConfirm={(justification) => {
-          if (pendingStatus) {
-            changeStatus({ status: pendingStatus, justification })
-          }
+          if (pendingStatus) changeStatus({ status: pendingStatus, justification })
           setPendingStatus(null)
         }}
         onCancel={() => setPendingStatus(null)}
