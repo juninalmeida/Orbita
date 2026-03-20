@@ -1,56 +1,30 @@
 import { Request, Response } from 'express'
 import { z } from 'zod'
-import { compare } from 'bcrypt'
-import { sign, SignOptions } from 'jsonwebtoken'
-import { prisma } from '@/database/prisma'
-import { AppError } from '@/utils/AppError'
-import { authConfig } from '@/configs/auth'
+import { sessionService, cookieConfig } from '@/services/session-service'
 
 class SessionsController {
   async create(request: Request, response: Response) {
-    const bodySchema = z.object({
-      email: z.string().email(),
-      password: z.string().min(1),
-    })
+    const { email, password } = z
+      .object({ email: z.string().email(), password: z.string().min(1) })
+      .parse(request.body)
 
-    const { email, password } = bodySchema.parse(request.body)
+    const token = await sessionService.authenticate(email, password)
 
-    const user = await prisma.user.findFirst({ where: { email } })
-
-    const passwordMatches = user
-      ? await compare(password, user.password)
-      : false
-
-    if (!user || !passwordMatches) {
-      throw new AppError('Invalid credentials', 401)
-    }
-
-    const signOptions: SignOptions = {
-      subject: user.id,
-      expiresIn: authConfig.jwt.expiresIn as SignOptions['expiresIn'],
-    }
-
-    const token = sign({ role: user.role }, authConfig.jwt.secret, signOptions)
-
-    response.cookie('token', token, {
-      httpOnly: true, // JavaScript do browser não consegue ler esse cookie. Proteção contra XSS
-      sameSite: 'strict', //  o cookie só é enviado em requisições do mesmo site. Proteção contra CSRF
-      maxAge: 1000 * 60 * 60 * 24 * 7, // tempo de vida em milissegundos
-    })
+    response.cookie('token', token, cookieConfig)
 
     return response.json({ message: 'Logged in successfully' })
   }
 
   async show(request: Request, response: Response) {
-    const { password: _, ...user } = await prisma.user.findUniqueOrThrow({
-      where: { id: request.user.id },
-    })
+    const user = await sessionService.getProfile(request.user.id)
 
     return response.json(user)
   }
 
   async remove(_request: Request, response: Response) {
-    response.clearCookie('token')
+    const { maxAge: _, ...clearOptions } = cookieConfig
+    response.clearCookie('token', clearOptions)
+
     return response.json({ message: 'Logged out successfully' })
   }
 }
