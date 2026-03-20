@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ChevronDown, CheckCircle2 } from 'lucide-react'
 import { useCompletedTasks, useAllTeams } from '@/hooks/use-task-requests'
+import { TaskDetailModal } from '@/components/task/task-detail-modal'
 
 const priorityStyles: Record<string, string> = {
   high: 'text-[var(--danger)] bg-[var(--danger)]/10',
@@ -23,6 +24,7 @@ export function CompletedTasksPage() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const { completedTasks, isLoading } = useCompletedTasks(selectedTeamId || undefined)
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
   const selectedTeam = teams.find((t: { id: string }) => t.id === selectedTeamId)
 
@@ -117,7 +119,8 @@ export function CompletedTasksPage() {
           {completedTasks.map((task: CompletedTask) => (
             <div
               key={task.id}
-              className="rounded-xl px-4 py-3 border border-white/[0.06] flex items-center justify-between gap-3"
+              onClick={() => setSelectedTaskId(task.id)}
+              className="rounded-xl px-4 py-3 border border-white/[0.06] flex items-center justify-between gap-3 cursor-pointer hover:border-emerald-500/15 transition-all"
               style={{
                 background:
                   'linear-gradient(145deg, rgba(10, 18, 14, 0.45) 0%, rgba(8, 12, 10, 0.6) 100%)',
@@ -153,6 +156,11 @@ export function CompletedTasksPage() {
           ))}
         </div>
       )}
+
+      <TaskDetailModal
+        taskId={selectedTaskId}
+        onClose={() => setSelectedTaskId(null)}
+      />
     </div>
   )
 }
