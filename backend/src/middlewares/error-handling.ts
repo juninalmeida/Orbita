@@ -17,7 +17,10 @@ function errorHandler(
   if (error instanceof ZodError) {
     return response.status(400).json({
       message: 'validation error',
-      issues: error.format(),
+      issues: error.issues.map((issue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      })),
     })
   }
 

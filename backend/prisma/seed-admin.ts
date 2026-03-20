@@ -4,11 +4,17 @@ import { hash } from 'bcrypt'
 const prisma = new PrismaClient()
 
 async function main() {
-  const email = 'admin@orbita.com'
+  const email = process.env.ADMIN_EMAIL ?? 'admin@orbita.com'
+  const adminPassword = process.env.ADMIN_PASSWORD
+
+  if (!adminPassword) {
+    console.error('ADMIN_PASSWORD environment variable is required.')
+    console.error('Usage: ADMIN_PASSWORD=YourSecurePass123 npx ts-node prisma/seed-admin.ts')
+    process.exit(1)
+  }
 
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) {
-    // Update to admin if not already
     if (existing.role !== 'admin') {
       await prisma.user.update({
         where: { email },
@@ -21,7 +27,7 @@ async function main() {
     return
   }
 
-  const password = await hash('admin123', 8)
+  const password = await hash(adminPassword, 12)
 
   await prisma.user.create({
     data: {
@@ -33,8 +39,7 @@ async function main() {
   })
 
   console.log('Admin user created successfully!')
-  console.log('Email: admin@orbita.com')
-  console.log('Password: admin123')
+  console.log(`Email: ${email}`)
 }
 
 main()
