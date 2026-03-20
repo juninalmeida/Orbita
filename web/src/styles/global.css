@@ -9,9 +9,9 @@
   --border-hover: #2e2e2e;
   --text: #efefef;
   --text-muted: #6b6b6b;
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --primary-glow: rgba(99, 102, 241, 0.15);
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --primary-glow: rgba(16, 185, 129, 0.12);
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
@@ -44,17 +44,6 @@ body {
   border-radius: 2px;
 }
 
-@keyframes twinkle {
-  0%,
-  100% {
-    opacity: 0.1;
-    transform: scale(0.8);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.2);
-  }
-}
 
 @keyframes shimmer {
   0% {
@@ -104,3 +93,37 @@ body {
     transform: translateX(0);
   }
 }
+
+@keyframes auth-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes auth-fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+    filter: blur(4px);
+  }
+}
+
+@keyframes dashboard-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+

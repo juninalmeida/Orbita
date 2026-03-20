@@ -7,25 +7,25 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export function Input({ label, error, id, ...props }: InputProps) {
   return (
-    <div className='flex flex-col gap-1.5'>
+    <div className="flex flex-col gap-1.5">
       {label && (
         <label
           htmlFor={id}
-          className='text-sm font-medium text-[var(--text-muted)]'
+          className="text-xs font-medium uppercase tracking-widest text-[var(--text-muted)]"
         >
           {label}
         </label>
       )}
       <input
         id={id}
-        className={`w-full px-3 py-2 rounded-lg bg-[var(--surface)] border text-[var(--text)] text-sm outline-none transition-all duration-200 placeholder:text-[var(--text-muted)] ${
+        className={`w-full px-4 py-3 rounded-xl text-sm text-[var(--text)] outline-none transition-all duration-200 placeholder:text-[var(--text-muted)]/50 ${
           error
-            ? 'border-[var(--danger)]'
-            : 'border-[var(--border)] focus:border-[var(--primary)]'
+            ? 'border border-[var(--danger)] bg-[var(--danger)]/5'
+            : 'border border-white/[0.06] bg-white/[0.04] focus:border-emerald-500/40 focus:bg-white/[0.06] focus:shadow-[0_0_20px_rgba(16,185,129,0.08)]'
         }`}
         {...props}
       />
-      {error && <span className='text-xs text-[var(--danger)]'>{error}</span>}
+      {error && <span className="text-xs text-[var(--danger)]">{error}</span>}
     </div>
   )
 }
