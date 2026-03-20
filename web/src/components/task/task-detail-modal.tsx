@@ -54,7 +54,7 @@ export function TaskDetailModal({
   const { user } = useAuth()
   const adminUsers = useAdminUsers(isAdmin)
 
-  const canChangeStatus = true
+  const canChangeStatus = isAdmin || (task?.assignments?.some(a => a.user.id === user?.id && a.status === 'assigned') ?? false)
 
   if (!taskId) return null
 

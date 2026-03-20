@@ -8,9 +8,14 @@ import { Button } from '@/components/ui/button'
 import { register as registerUser } from '@/api/auth'
 
 const registerSchema = z.object({
-  name: z.string().min(2, 'Mínimo 2 caracteres'),
-  email: z.string().email('E-mail inválido'),
-  password: z.string().min(6, 'Mínimo 6 caracteres'),
+  name: z.string().min(2, 'Mínimo 2 caracteres').max(100),
+  email: z.string().email('E-mail inválido').max(150),
+  password: z
+    .string()
+    .min(8, 'Mínimo 8 caracteres')
+    .regex(/[A-Z]/, 'Deve conter uma letra maiúscula')
+    .regex(/[a-z]/, 'Deve conter uma letra minúscula')
+    .regex(/\d/, 'Deve conter um número'),
 })
 
 type RegisterForm = z.infer<typeof registerSchema>
@@ -21,19 +26,31 @@ export function RegisterPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
   })
 
   async function onSubmit(data: RegisterForm) {
-    await registerUser(data.name, data.email, data.password)
-    navigate('/login')
+    try {
+      await registerUser(data.name, data.email, data.password)
+      navigate('/login')
+    } catch (err: unknown) {
+      const message =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined
+      setError('root', { message: message ?? 'Erro ao criar conta. Tente novamente.' })
+    }
   }
 
   return (
     <AuthLayout title="Criar conta" subtitle="Comece a gerenciar seus projetos">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+        {errors.root && (
+          <p className="text-sm text-rose-400 text-center">{errors.root.message}</p>
+        )}
         <Input
           id="name"
           label="Nome"
