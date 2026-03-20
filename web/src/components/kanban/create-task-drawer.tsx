@@ -39,16 +39,19 @@ export function CreateTaskDrawer({
   })
 
   function onSubmit(data: FormData) {
-    addTask(data, {
-      onSuccess: () => {
-        toast.success('Tarefa criada com sucesso!')
-        reset()
-        onClose()
+    addTask(
+      { title: data.title, description: data.description, priority: data.priority },
+      {
+        onSuccess: () => {
+          toast.success('Tarefa criada com sucesso!')
+          reset()
+          onClose()
+        },
+        onError: () => {
+          toast.error('Erro ao criar tarefa. Tente novamente mais tarde.')
+        },
       },
-      onError: () => {
-        toast.error('Erro ao criar tarefa. Tente novamente mais tarde.')
-      },
-    })
+    )
   }
 
   if (!isOpen) return null
@@ -56,8 +59,13 @@ export function CreateTaskDrawer({
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="flex-1 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="w-80 bg-[var(--surface)] border-l border-[var(--border)] flex flex-col h-full animate-[slide-in_0.2s_ease-out]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
+      <div
+        className="w-80 border-l border-white/[0.06] flex flex-col h-full animate-[slide-in_0.2s_ease-out]"
+        style={{
+          background: 'linear-gradient(180deg, rgba(5, 12, 8, 0.96) 0%, rgba(2, 6, 4, 0.98) 100%)',
+        }}
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
           <h2
             className="text-sm font-semibold text-[var(--text)]"
             style={{ fontFamily: 'Syne, sans-serif' }}
@@ -85,23 +93,23 @@ export function CreateTaskDrawer({
           />
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-[var(--text-muted)]">
+            <label className="text-xs font-medium uppercase tracking-widest text-[var(--text-muted)]">
               Descrição
             </label>
             <textarea
               placeholder="Descrição opcional..."
               rows={3}
-              className="w-full px-3 py-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] focus:border-[var(--primary)] text-[var(--text)] text-sm outline-none transition-all duration-200 placeholder:text-[var(--text-muted)] resize-none"
+              className="w-full px-4 py-3 rounded-xl text-sm text-[var(--text)] outline-none transition-all duration-200 placeholder:text-[var(--text-muted)]/50 border border-white/[0.06] bg-white/[0.04] focus:border-emerald-500/40 focus:bg-white/[0.06] focus:shadow-[0_0_20px_rgba(16,185,129,0.08)] resize-none"
               {...register('description')}
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-[var(--text-muted)]">
+            <label className="text-xs font-medium uppercase tracking-widest text-[var(--text-muted)]">
               Prioridade
             </label>
             <select
-              className="w-full px-3 py-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] focus:border-[var(--primary)] text-[var(--text)] text-sm outline-none transition-all duration-200 cursor-pointer"
+              className="w-full px-4 py-3 rounded-xl text-sm text-[var(--text)] outline-none transition-all duration-200 border border-white/[0.06] bg-white/[0.04] focus:border-emerald-500/40 cursor-pointer"
               {...register('priority')}
             >
               <option value="low">Baixa</option>

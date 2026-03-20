@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { TaskStatus } from '@/types/task'
+import type { Task, TaskStatus } from '@/types/task'
 import { useTasks } from '@/hooks/use-tasks'
 import { KanbanColumn } from './kanban-column'
 import { CreateTaskDrawer } from './create-task-drawer'
@@ -7,6 +7,12 @@ import { TaskDetailModal } from '@/components/task/task-detail-modal'
 
 interface KanbanBoardProps {
   teamId: string
+  isAdmin?: boolean
+  adminTasks?: Task[]
+  adminIsLoading?: boolean
+  adminChangeStatus?: (args: { taskId: string; status: string; justification?: string }) => void
+  onAdminTaskDeleted?: () => void
+  onAdminTaskArchived?: () => void
 }
 
 const columns: { title: string; status: TaskStatus }[] = [
@@ -15,8 +21,20 @@ const columns: { title: string; status: TaskStatus }[] = [
   { title: 'Concluído', status: 'completed' },
 ]
 
-export function KanbanBoard({ teamId }: KanbanBoardProps) {
-  const { tasks, isLoading, changeStatus } = useTasks(teamId)
+export function KanbanBoard({
+  teamId,
+  isAdmin = false,
+  adminTasks,
+  adminIsLoading,
+  adminChangeStatus,
+  onAdminTaskDeleted,
+  onAdminTaskArchived,
+}: KanbanBoardProps) {
+  const memberHook = useTasks(teamId)
+  const tasks = adminTasks ?? memberHook.tasks
+  const isLoading = adminIsLoading ?? memberHook.isLoading
+  const changeStatus = adminChangeStatus ?? memberHook.changeStatus
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
@@ -49,11 +67,13 @@ export function KanbanBoard({ teamId }: KanbanBoardProps) {
             title={col.title}
             status={col.status}
             tasks={tasks.filter((t) => t.status === col.status)}
-            onAddTask={() => setIsDrawerOpen(true)}
-            onStatusChange={(taskId, status) =>
-              changeStatus({ taskId, status })
+            onAddTask={col.status === 'pending' ? () => setIsDrawerOpen(true) : undefined}
+            onStatusChange={(taskId, status, justification) =>
+              changeStatus({ taskId, status, justification })
             }
             onSelect={(taskId) => setSelectedTaskId(taskId)}
+            isAdmin={isAdmin}
+            collapsible={col.status !== 'pending'}
           />
         ))}
       </div>
@@ -66,7 +86,19 @@ export function KanbanBoard({ teamId }: KanbanBoardProps) {
 
       <TaskDetailModal
         taskId={selectedTaskId}
-        onClose={() => setSelectedTaskId(null)}
+        onClose={() => {
+          setSelectedTaskId(null)
+        }}
+        isAdmin={isAdmin}
+        teamId={teamId}
+        onDeleted={() => {
+          setSelectedTaskId(null)
+          onAdminTaskDeleted?.()
+        }}
+        onArchived={() => {
+          setSelectedTaskId(null)
+          onAdminTaskArchived?.()
+        }}
       />
     </>
   )
