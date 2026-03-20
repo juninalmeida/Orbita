@@ -16,7 +16,7 @@ export function DashboardPage() {
         </p>
         <button
           onClick={() => setIsModalOpen(true)}
-          className='flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-sm font-medium transition-all duration-200 cursor-pointer active:scale-95'
+          className='flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-700/60 hover:bg-emerald-600/70 text-emerald-50 text-sm font-medium transition-all duration-200 cursor-pointer active:scale-95 border border-emerald-500/15 shadow-[0_0_16px_rgba(16,185,129,0.1)]'
         >
           <Plus size={15} />
           Novo time
@@ -28,7 +28,10 @@ export function DashboardPage() {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className='h-32 rounded-xl bg-[var(--card)] border border-[var(--border)] animate-pulse'
+              className='h-32 rounded-xl border border-white/[0.06] animate-pulse'
+              style={{
+                background: 'linear-gradient(145deg, rgba(10, 18, 14, 0.4) 0%, rgba(8, 12, 10, 0.5) 100%)',
+              }}
             />
           ))}
         </div>

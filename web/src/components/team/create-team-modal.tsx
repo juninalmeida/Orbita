@@ -57,7 +57,15 @@ export function CreateTeamModal({ isOpen, onClose }: CreateTeamModalProps) {
       onClick={(e) => e.target === overlayRef.current && onClose()}
       className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
     >
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 w-full max-w-sm">
+      <div
+        className="rounded-2xl p-6 w-full max-w-sm border border-white/[0.06] animate-[auth-fade-in_0.25s_ease-out]"
+        style={{
+          background: 'linear-gradient(145deg, rgba(10, 18, 14, 0.85) 0%, rgba(8, 12, 10, 0.92) 100%)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          boxShadow: '0 0 60px rgba(16, 185, 129, 0.04), 0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+        }}
+      >
         <div className="flex items-center justify-between mb-5">
           <h2
             className="text-sm font-semibold text-[var(--text)]"
