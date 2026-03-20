@@ -1,3 +1,5 @@
+import { Starfield } from '@/components/effects/starfield'
+
 interface AuthLayoutProps {
   children: React.ReactNode
   title: string
@@ -6,8 +8,10 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4 relative">
+      <Starfield />
+
+      <div className="w-full max-w-sm relative z-10">
         <div className="mb-8 text-center">
           <h1
             className="text-2xl font-bold text-[var(--text)] mb-1"
