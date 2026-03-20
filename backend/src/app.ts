@@ -8,12 +8,14 @@ import { env } from '@/env'
 
 const app = express()
 
+const allowedOrigins = env.WEB_URL.split(',').map((url) => url.trim())
+
 app.use(helmet())
 app.use(
   cors({
-    origin: env.WEB_URL,
+    origin: allowedOrigins,
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   }),
 )
 app.use('/users/profile/avatar', express.json({ limit: '1mb' }))
