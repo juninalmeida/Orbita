@@ -5,6 +5,7 @@ import { X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useTasks } from '@/hooks/use-tasks'
+import { toast } from 'sonner'
 
 const schema = z.object({
   title: z.string().min(2, 'Mínimo 2 caracteres'),
@@ -40,8 +41,12 @@ export function CreateTaskDrawer({
   function onSubmit(data: FormData) {
     addTask(data, {
       onSuccess: () => {
+        toast.success('Tarefa criada com sucesso!')
         reset()
         onClose()
+      },
+      onError: () => {
+        toast.error('Erro ao criar tarefa. Tente novamente mais tarde.')
       },
     })
   }

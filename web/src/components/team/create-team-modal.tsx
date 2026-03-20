@@ -6,6 +6,7 @@ import { X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useTeams } from '@/hooks/use-teams'
+import { toast } from 'sonner'
 
 const schema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres'),
@@ -38,8 +39,12 @@ export function CreateTeamModal({ isOpen, onClose }: CreateTeamModalProps) {
   function onSubmit(data: FormData) {
     addTeam(data.name, {
       onSuccess: () => {
+        toast.success('Time criado com sucesso!')
         reset()
         onClose()
+      },
+      onError: () => {
+        toast.error('Erro ao criar time. Tente novamente mais tarde.')
       },
     })
   }
@@ -50,33 +55,33 @@ export function CreateTeamModal({ isOpen, onClose }: CreateTeamModalProps) {
     <div
       ref={overlayRef}
       onClick={(e) => e.target === overlayRef.current && onClose()}
-      className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50'
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
     >
-      <div className='bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 w-full max-w-sm'>
-        <div className='flex items-center justify-between mb-5'>
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 w-full max-w-sm">
+        <div className="flex items-center justify-between mb-5">
           <h2
-            className='text-sm font-semibold text-[var(--text)]'
+            className="text-sm font-semibold text-[var(--text)]"
             style={{ fontFamily: 'Syne, sans-serif' }}
           >
             Novo time
           </h2>
           <button
             onClick={onClose}
-            className='text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer'
+            className="text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer"
           >
             <X size={16} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-4'>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <Input
-            id='name'
-            label='Nome do time'
-            placeholder='Ex: Backend, Design...'
+            id="name"
+            label="Nome do time"
+            placeholder="Ex: Backend, Design..."
             error={errors.name?.message}
             {...register('name')}
           />
-          <Button type='submit' isLoading={isPending}>
+          <Button type="submit" isLoading={isPending}>
             Criar time
           </Button>
         </form>
