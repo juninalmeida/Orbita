@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 import { Users } from 'lucide-react'
+import { UserAvatar } from '@/components/ui/user-avatar'
 import { useAllTeams } from '@/hooks/use-task-requests'
 
 interface TeamItem {
   id: string
   name: string
-  members: { id: string; name: string; email: string }[]
+  members: { id: string; name: string; email: string; avatar?: string | null }[]
   completedTasksCount: number
 }
 
@@ -66,13 +67,7 @@ export function TeamsListPage() {
                 <div className="flex items-center mb-4">
                   <div className="flex -space-x-2">
                     {visible.map((m) => (
-                      <div
-                        key={m.id}
-                        className="w-7 h-7 rounded-full bg-emerald-600/60 flex items-center justify-center text-[10px] font-semibold text-emerald-100 ring-2 ring-[rgba(8,12,10,0.88)]"
-                        title={m.name}
-                      >
-                        {m.name.charAt(0).toUpperCase()}
-                      </div>
+                      <UserAvatar key={m.id} name={m.name} avatar={m.avatar} size="sm" className="ring-2 ring-[rgba(8,12,10,0.88)]" />
                     ))}
                     {overflow > 0 && (
                       <div className="w-7 h-7 rounded-full bg-white/[0.08] flex items-center justify-center text-[10px] font-medium text-[var(--text-muted)] ring-2 ring-[rgba(8,12,10,0.88)]">

@@ -6,7 +6,7 @@ class OverviewService {
       include: {
         members: {
           include: {
-            user: { select: { id: true, name: true, email: true, role: true } },
+            user: { select: { id: true, name: true, email: true, role: true, avatar: true } },
           },
         },
         tasks: {
@@ -123,7 +123,7 @@ class OverviewService {
     const userIds = activityGroups.map((g) => g.changedBy)
     const users = await prisma.user.findMany({
       where: { id: { in: userIds } },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true, email: true, avatar: true },
     })
 
     const userMap = new Map(users.map((u) => [u.id, u]))

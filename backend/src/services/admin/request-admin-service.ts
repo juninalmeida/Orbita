@@ -6,7 +6,7 @@ class RequestAdminService {
     return prisma.taskRequest.findMany({
       where: { status: 'pending' },
       include: {
-        user: { select: { id: true, name: true, email: true } },
+        user: { select: { id: true, name: true, email: true, avatar: true } },
         task: {
           select: {
             id: true,

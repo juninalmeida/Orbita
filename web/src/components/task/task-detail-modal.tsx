@@ -8,6 +8,7 @@ import { RequestHelpModal } from './request-help-modal'
 import { useRemoveHelper } from '@/hooks/use-assignments'
 import { useAuth } from '@/hooks/use-auth'
 import { toast } from 'sonner'
+import { UserAvatar } from '@/components/ui/user-avatar'
 import type { TaskStatus } from '@/types/task'
 
 interface TaskDetailModalProps {
@@ -261,9 +262,7 @@ export function TaskDetailModal({
               </span>
               {task.assignments?.filter(a => a.status === 'assigned').map((a) => (
                 <div key={a.user.id} className="flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-full bg-emerald-600/50 flex items-center justify-center text-xs font-semibold text-emerald-100 ring-1 ring-emerald-500/20">
-                    {a.user.name.charAt(0).toUpperCase()}
-                  </div>
+                  <UserAvatar name={a.user.name} avatar={a.user.avatar} size="xs" userId={a.user.id} />
                   <span className="text-xs text-[var(--text-muted)]">{a.user.name}</span>
                 </div>
               ))}
@@ -289,9 +288,7 @@ export function TaskDetailModal({
                 {task.assignments?.filter(a => a.status === 'assigned').map((a) => (
                   <div key={a.user.id} className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-white/[0.02]">
                     <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full bg-emerald-600/50 flex items-center justify-center text-xs font-semibold text-emerald-100 ring-1 ring-emerald-500/20">
-                        {a.user.name.charAt(0).toUpperCase()}
-                      </div>
+                      <UserAvatar name={a.user.name} avatar={a.user.avatar} size="xs" userId={a.user.id} />
                       <span className="text-xs text-[var(--text)]">{a.user.name}</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded ${a.role === 'owner' ? 'text-emerald-400 bg-emerald-400/10' : 'text-[var(--text-muted)] bg-white/5'}`}>
                         {a.role === 'owner' ? 'Dono' : 'Ajudante'}

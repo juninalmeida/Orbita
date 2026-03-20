@@ -52,7 +52,6 @@ class TaskRequestService {
   async getCompleted(teamId?: string) {
     const where: Record<string, unknown> = {
       status: 'completed',
-      deleted: false,
       archived: false,
     }
 
@@ -67,7 +66,7 @@ class TaskRequestService {
         updatedAt: true,
         assignments: {
           where: { status: 'assigned' },
-          include: { user: { select: { id: true, name: true } } },
+          include: { user: { select: { id: true, name: true, avatar: true } } },
         },
         team: { select: { id: true, name: true } },
       },
@@ -79,7 +78,7 @@ class TaskRequestService {
     const teams = await prisma.team.findMany({
       include: {
         members: {
-          include: { user: { select: { id: true, name: true, email: true } } },
+          include: { user: { select: { id: true, name: true, email: true, avatar: true } } },
         },
         _count: {
           select: { tasks: { where: { status: 'completed', archived: false } } },
@@ -101,14 +100,14 @@ class TaskRequestService {
       where: { id: teamId },
       include: {
         members: {
-          include: { user: { select: { id: true, name: true, email: true } } },
+          include: { user: { select: { id: true, name: true, email: true, avatar: true } } },
         },
       },
     })
     if (!team) throw new AppError('Team not found', 404)
 
     const completedTasks = await prisma.task.findMany({
-      where: { teamId, status: 'completed', deleted: false, archived: false },
+      where: { teamId, status: 'completed', archived: false },
       select: {
         id: true,
         title: true,
@@ -116,7 +115,7 @@ class TaskRequestService {
         updatedAt: true,
         assignments: {
           where: { status: 'assigned' },
-          include: { user: { select: { id: true, name: true } } },
+          include: { user: { select: { id: true, name: true, avatar: true } } },
         },
       },
       orderBy: { updatedAt: 'desc' },

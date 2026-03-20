@@ -41,8 +41,8 @@ class AssignmentService {
         requestedById: requesterId,
       },
       include: {
-        user: { select: { id: true, name: true, email: true } },
-        requestedBy: { select: { id: true, name: true } },
+        user: { select: { id: true, name: true, email: true, avatar: true } },
+        requestedBy: { select: { id: true, name: true, avatar: true } },
         task: { select: { id: true, title: true } },
       },
     })
@@ -53,7 +53,7 @@ class AssignmentService {
       where: { userId, status: 'pending' },
       include: {
         task: { select: { id: true, title: true } },
-        requestedBy: { select: { id: true, name: true } },
+        requestedBy: { select: { id: true, name: true, avatar: true } },
       },
       orderBy: { createdAt: 'desc' },
     })

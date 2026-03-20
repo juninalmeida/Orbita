@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { UserAvatar } from '@/components/ui/user-avatar'
 import { useTeamCompleted } from '@/hooks/use-task-requests'
 
 const priorityStyles: Record<string, string> = {
@@ -72,11 +73,9 @@ export function MemberTeamDetailPage() {
               Membros ({team.members?.length ?? 0})
             </p>
             <div className="flex flex-wrap gap-3">
-              {(team.members ?? []).map((m: { id: string; name: string; email: string }) => (
+              {(team.members ?? []).map((m: { id: string; name: string; email: string; avatar?: string | null }) => (
                 <div key={m.id} className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-emerald-600/60 flex items-center justify-center text-xs font-semibold text-emerald-100 ring-1 ring-emerald-500/20">
-                    {m.name.charAt(0).toUpperCase()}
-                  </div>
+                  <UserAvatar name={m.name} avatar={m.avatar} size="md" userId={m.id} />
                   <div>
                     <p className="text-xs text-[var(--text)]">{m.name}</p>
                     <p className="text-[10px] text-[var(--text-muted)]">{m.email}</p>

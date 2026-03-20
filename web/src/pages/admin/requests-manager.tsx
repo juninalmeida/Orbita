@@ -1,4 +1,5 @@
 import { usePendingRequests } from '@/hooks/use-admin'
+import { UserAvatar } from '@/components/ui/user-avatar'
 import { toast } from 'sonner'
 import type { TaskRequest } from '@/types/task-request'
 
@@ -83,9 +84,7 @@ export function RequestsManager() {
                 <div className="flex flex-col gap-2 min-w-0 flex-1">
                   {/* Member info */}
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-emerald-600/50 flex items-center justify-center text-xs font-semibold text-emerald-100 ring-1 ring-emerald-500/20 flex-shrink-0">
-                      {req.user?.name?.charAt(0).toUpperCase() ?? '?'}
-                    </div>
+                    <UserAvatar name={req.user?.name ?? '?'} avatar={req.user?.avatar} size="sm" userId={req.user?.id} />
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-[var(--text)] truncate">
                         {req.user?.name ?? 'Usuário'}

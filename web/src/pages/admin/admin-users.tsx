@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Shield, ShieldOff, Trash2, Check, XCircle } from 'lucide-react'
 import { useAdminUsers } from '@/hooks/use-admin'
+import { UserAvatar } from '@/components/ui/user-avatar'
 import { toast } from 'sonner'
 
 export function AdminUsers() {
@@ -49,7 +50,7 @@ export function AdminUsers() {
 
       <div className="flex flex-col gap-2">
         {users.map((user: {
-          id: string; name: string; email: string; role: string;
+          id: string; name: string; email: string; role: string; avatar?: string | null;
           teams: Array<{ id: string; name: string }>; assignedTasksCount: number
         }) => (
           <div
@@ -57,9 +58,7 @@ export function AdminUsers() {
             className="rounded-xl p-4 border border-white/[0.06] flex items-center gap-4"
             style={{ background: 'linear-gradient(145deg, rgba(10, 18, 14, 0.45) 0%, rgba(8, 12, 10, 0.6) 100%)' }}
           >
-            <div className="w-9 h-9 rounded-full bg-emerald-600/50 flex items-center justify-center text-sm font-semibold text-emerald-100 ring-1 ring-emerald-500/20 flex-shrink-0">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
+            <UserAvatar name={user.name} avatar={user.avatar} size="lg" userId={user.id} />
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">

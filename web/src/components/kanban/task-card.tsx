@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Task, TaskStatus } from '@/types/task'
 import { ChevronRight } from 'lucide-react'
 import { JustificationModal } from '@/components/task/justification-modal'
+import { UserAvatar } from '@/components/ui/user-avatar'
 
 interface TaskCardProps {
   task: Task & { requests?: Array<{ status: string }> }
@@ -79,13 +80,7 @@ export function TaskCard({ task, onStatusChange, onSelect, isAdmin = false }: Ta
                   .filter(a => a.status === 'assigned')
                   .slice(0, 3)
                   .map((a) => (
-                    <div
-                      key={a.user.id}
-                      className="w-5 h-5 rounded-full bg-emerald-600/50 flex items-center justify-center text-xs font-semibold text-emerald-100 ring-1 ring-emerald-500/20 ring-offset-1 ring-offset-[rgb(8,12,10)]"
-                      title={a.user.name}
-                    >
-                      {a.user.name.charAt(0).toUpperCase()}
-                    </div>
+                    <UserAvatar key={a.user.id} name={a.user.name} avatar={a.user.avatar} size="xs" userId={a.user.id} className="ring-offset-1 ring-offset-[rgb(8,12,10)]" />
                   ))}
                 {task.assignments.filter(a => a.status === 'assigned').length > 3 && (
                   <span className="text-xs text-[var(--text-muted)] ml-1">

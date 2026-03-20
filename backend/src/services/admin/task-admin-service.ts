@@ -27,7 +27,7 @@ class TaskAdminService {
       include: {
         assignments: {
           where: { status: 'assigned' },
-          include: { user: { select: { id: true, name: true, email: true } } },
+          include: { user: { select: { id: true, name: true, email: true, avatar: true } } },
         },
       },
     })
@@ -71,11 +71,11 @@ class TaskAdminService {
       include: {
         assignments: {
           where: { status: 'assigned' },
-          include: { user: { select: { id: true, name: true, email: true } } },
+          include: { user: { select: { id: true, name: true, email: true, avatar: true } } },
         },
         team: { select: { id: true, name: true } },
         history: {
-          include: { changer: { select: { id: true, name: true } } },
+          include: { changer: { select: { id: true, name: true, avatar: true } } },
           orderBy: { changedAt: 'desc' },
         },
       },
@@ -110,7 +110,7 @@ class TaskAdminService {
       include: {
         assignments: {
           where: { status: 'assigned' },
-          include: { user: { select: { id: true, name: true, email: true } } },
+          include: { user: { select: { id: true, name: true, email: true, avatar: true } } },
         },
         team: { select: { id: true, name: true } },
       },
@@ -154,7 +154,7 @@ class TaskAdminService {
       include: {
         assignments: {
           where: { status: 'assigned' },
-          include: { user: { select: { id: true, name: true, email: true } } },
+          include: { user: { select: { id: true, name: true, email: true, avatar: true } } },
         },
       },
     })

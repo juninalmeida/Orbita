@@ -11,6 +11,7 @@ class UserAdminService {
         name: true,
         email: true,
         role: true,
+        avatar: true,
         createdAt: true,
         teams: {
           include: { team: { select: { id: true, name: true } } },
@@ -27,6 +28,7 @@ class UserAdminService {
       name: u.name,
       email: u.email,
       role: u.role,
+      avatar: u.avatar,
       createdAt: u.createdAt,
       teams: u.teams.map((t) => t.team),
       assignedTasksCount: u._count.taskAssignments,
@@ -48,7 +50,7 @@ class UserAdminService {
     return prisma.user.update({
       where: { id: targetUserId },
       data: { role },
-      select: { id: true, name: true, email: true, role: true },
+      select: { id: true, name: true, email: true, role: true, avatar: true },
     })
   }
 

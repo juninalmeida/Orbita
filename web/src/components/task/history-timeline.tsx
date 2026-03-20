@@ -1,4 +1,5 @@
 import type { TaskHistory } from '@/types/task'
+import { UserAvatar } from '@/components/ui/user-avatar'
 
 interface HistoryTimelineProps {
   history: TaskHistory[]
@@ -23,8 +24,8 @@ export function HistoryTimeline({ history }: HistoryTimelineProps) {
     <div className="flex flex-col gap-3">
       {history.map((entry) => (
         <div key={entry.id} className="flex items-start gap-3">
-          <div className="w-5 h-5 rounded-full bg-emerald-600/50 flex items-center justify-center text-xs font-semibold text-emerald-100 ring-1 ring-emerald-500/20 flex-shrink-0 mt-0.5">
-            {entry.changer.name.charAt(0).toUpperCase()}
+          <div className="mt-0.5">
+            <UserAvatar name={entry.changer.name} avatar={entry.changer.avatar} size="xs" />
           </div>
           <div>
             <p className="text-xs text-[var(--text)]">

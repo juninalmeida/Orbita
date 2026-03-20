@@ -3,6 +3,7 @@ import { useArchivedTasks, useDeletedTasks, useAdminOverview } from '@/hooks/use
 import { toast } from 'sonner'
 import type { TaskStatus, TaskPriority } from '@/types/task'
 import { X } from 'lucide-react'
+import { UserAvatar } from '@/components/ui/user-avatar'
 
 const priorityStyles: Record<TaskPriority, string> = {
   high: 'text-rose-400 bg-rose-400/10',
@@ -33,7 +34,7 @@ interface ArchivedTask {
   archivedAt: string | null
   deletedAt?: string | null
   team?: { id: string; name: string }
-  assignee?: { id: string; name: string; email: string } | null
+  assignee?: { id: string; name: string; email: string; avatar?: string | null } | null
   history?: Array<{
     id: string
     oldStatus: string
@@ -115,9 +116,7 @@ function TaskDetailDrawer({
             <div>
               <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-1">Atribuído a</p>
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-emerald-600/60 flex items-center justify-center text-[10px] font-semibold text-emerald-100 ring-1 ring-emerald-500/20">
-                  {task.assignee.name.charAt(0).toUpperCase()}
-                </div>
+                <UserAvatar name={task.assignee.name} avatar={task.assignee.avatar} size="xs" userId={task.assignee.id} />
                 <span className="text-sm text-[var(--text)]">{task.assignee.name}</span>
               </div>
             </div>

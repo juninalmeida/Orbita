@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X, Search, UserPlus } from 'lucide-react'
+import { UserAvatar } from '@/components/ui/user-avatar'
 import { useUsers } from '@/hooks/use-users'
 import { useRequestHelp } from '@/hooks/use-assignments'
 import { toast } from 'sonner'
@@ -89,9 +90,7 @@ export function RequestHelpModal({ isOpen, onClose, taskId, currentAssignments }
                 className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/[0.04] transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-full bg-emerald-600/50 flex items-center justify-center text-xs font-semibold text-emerald-100 ring-1 ring-emerald-500/20">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
+                  <UserAvatar name={user.name} avatar={user.avatar} size="sm" userId={user.id} />
                   <div>
                     <p className="text-sm text-[var(--text)]">{user.name}</p>
                     <p className="text-xs text-[var(--text-muted)]">{user.email}</p>

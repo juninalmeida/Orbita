@@ -46,7 +46,7 @@ class TaskService {
       include: {
         assignments: {
           where: { status: 'assigned' },
-          include: { user: { select: { id: true, name: true, email: true } } },
+          include: { user: { select: { id: true, name: true, email: true, avatar: true } } },
         },
       },
     })
@@ -65,7 +65,7 @@ class TaskService {
       include: {
         assignments: {
           where: { status: 'assigned' },
-          include: { user: { select: { id: true, name: true, email: true } } },
+          include: { user: { select: { id: true, name: true, email: true, avatar: true } } },
         },
       },
       orderBy: { createdAt: 'desc' },
@@ -78,8 +78,8 @@ class TaskService {
       include: {
         assignments: {
           include: {
-            user: { select: { id: true, name: true, email: true } },
-            requestedBy: { select: { id: true, name: true } },
+            user: { select: { id: true, name: true, email: true, avatar: true } },
+            requestedBy: { select: { id: true, name: true, avatar: true } },
           },
         },
         team: { select: { id: true, name: true } },
@@ -146,7 +146,7 @@ class TaskService {
     return prisma.taskHistory.findMany({
       where: { taskId },
       include: {
-        changer: { select: { id: true, name: true, email: true } },
+        changer: { select: { id: true, name: true, email: true, avatar: true } },
       },
       orderBy: { changedAt: 'desc' },
     })

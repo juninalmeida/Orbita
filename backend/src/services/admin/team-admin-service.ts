@@ -8,7 +8,7 @@ class TeamAdminService {
       where: { id: teamId },
       include: {
         members: {
-          include: { user: { select: { id: true, name: true, email: true } } },
+          include: { user: { select: { id: true, name: true, email: true, avatar: true } } },
         },
       },
     })
@@ -26,7 +26,7 @@ class TeamAdminService {
       include: {
         assignments: {
           where: { status: 'assigned' },
-          include: { user: { select: { id: true, name: true, email: true } } },
+          include: { user: { select: { id: true, name: true, email: true, avatar: true } } },
         },
         requests: {
           select: { id: true, userId: true, type: true },

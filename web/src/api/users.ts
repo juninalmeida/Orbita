@@ -5,6 +5,7 @@ export interface UserListItem {
   name: string
   email: string
   role: 'admin' | 'member'
+  avatar?: string | null
 }
 
 export async function listUsers() {

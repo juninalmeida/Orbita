@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Plus, X, Trash2 } from 'lucide-react'
+import { UserAvatar } from '@/components/ui/user-avatar'
 import { useAdminTeamTasks, useAdminTeams } from '@/hooks/use-admin'
 import { getAdminTeam } from '@/api/admin'
 import { KanbanBoard } from '@/components/kanban/kanban-board'
@@ -141,11 +142,9 @@ export function AdminTeamDetail() {
           )}
 
           <div className="flex flex-wrap gap-3">
-            {members.map((m: { id: string; name: string; email: string }) => (
+            {members.map((m: { id: string; name: string; email: string; avatar?: string | null }) => (
               <div key={m.id} className="flex items-center gap-2 group">
-                <div className="w-8 h-8 rounded-full bg-emerald-600/60 flex items-center justify-center text-xs font-semibold text-emerald-100 ring-1 ring-emerald-500/20">
-                  {m.name?.charAt(0).toUpperCase()}
-                </div>
+                <UserAvatar name={m.name} avatar={m.avatar} size="md" userId={m.id} />
                 <div>
                   <p className="text-xs text-[var(--text)]">{m.name}</p>
                   <p className="text-[10px] text-[var(--text-muted)]">{m.email}</p>
