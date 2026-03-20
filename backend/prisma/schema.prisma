@@ -52,6 +52,8 @@ model User {
   password  String   @db.VarChar(255)
   role      Role     @default(member)
   active    Boolean  @default(true)
+  avatar    String?  @db.Text
+  bio       String?  @db.VarChar(300)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
