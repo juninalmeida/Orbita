@@ -3,6 +3,20 @@ import { z } from 'zod'
 import { prisma } from '@/database/prisma'
 import { AppError } from '@/utils/AppError'
 
+async function canAccessTask(userId: string, taskId: string, teamId: string | null): Promise<boolean> {
+  const hasAssignment = await prisma.taskAssignment.findFirst({
+    where: { taskId, userId, status: 'assigned' },
+  })
+  if (hasAssignment) return true
+
+  if (!teamId) return false
+
+  const isMember = await prisma.teamMember.findFirst({
+    where: { teamId, userId },
+  })
+  return !!isMember
+}
+
 class TasksController {
   async create(request: Request, response: Response) {
     const paramsSchema = z.object({
@@ -13,43 +27,44 @@ class TasksController {
       title: z.string().trim().min(2),
       description: z.string().trim().optional(),
       priority: z.enum(['high', 'medium', 'low']).default('medium'),
-      assignedTo: z.string().uuid().optional(),
     })
 
     const { id: teamId } = paramsSchema.parse(request.params)
-    const { title, description, priority, assignedTo } = bodySchema.parse(
-      request.body,
-    )
+    const { title, description, priority } = bodySchema.parse(request.body)
 
-    const isMember = await prisma.teamMember.findFirst({
-      where: { teamId, userId: request.user.id },
-    })
+    const isAdmin = request.user.role === 'admin'
 
-    if (!isMember) {
-      throw new AppError('You are not a member of this team', 403)
-    }
-
-    if (assignedTo) {
-      const assignedMember = await prisma.teamMember.findFirst({
-        where: { teamId, userId: assignedTo },
+    if (!isAdmin) {
+      const isMember = await prisma.teamMember.findFirst({
+        where: { teamId, userId: request.user.id },
       })
-
-      if (!assignedMember) {
-        throw new AppError('Assigned user is not a member of this team', 400)
-      }
+      if (!isMember) throw new AppError('You are not a member of this team', 403)
     }
 
     const task = await prisma.task.create({
+      data: { title, description, priority, teamId },
+    })
+
+    await prisma.taskAssignment.create({
       data: {
-        title,
-        description,
-        priority,
-        teamId,
-        assignedTo,
+        taskId: task.id,
+        userId: request.user.id,
+        role: 'owner',
+        status: 'assigned',
       },
     })
 
-    return response.status(201).json(task)
+    const taskWithAssignments = await prisma.task.findUnique({
+      where: { id: task.id },
+      include: {
+        assignments: {
+          where: { status: 'assigned' },
+          include: { user: { select: { id: true, name: true, email: true } } },
+        },
+      },
+    })
+
+    return response.status(201).json(taskWithAssignments)
   }
 
   async index(request: Request, response: Response) {
@@ -59,19 +74,24 @@ class TasksController {
 
     const { id: teamId } = paramsSchema.parse(request.params)
 
-    const isMember = await prisma.teamMember.findFirst({
-      where: { teamId, userId: request.user.id },
-    })
+    if (request.user.role !== 'admin') {
+      const isMember = await prisma.teamMember.findFirst({
+        where: { teamId, userId: request.user.id },
+      })
 
-    if (!isMember) {
-      throw new AppError('You are not a member of this team', 403)
+      if (!isMember) {
+        throw new AppError('You are not a member of this team', 403)
+      }
     }
 
     const tasks = await prisma.task.findMany({
-      where: { teamId },
+      where: { teamId, archived: false, deleted: false },
       include: {
-        assignee: {
-          select: { id: true, name: true, email: true },
+        assignments: {
+          where: { status: 'assigned' },
+          include: {
+            user: { select: { id: true, name: true, email: true } },
+          },
         },
       },
       orderBy: { createdAt: 'desc' },
@@ -90,12 +110,13 @@ class TasksController {
     const task = await prisma.task.findUnique({
       where: { id },
       include: {
-        assignee: {
-          select: { id: true, name: true, email: true },
+        assignments: {
+          include: {
+            user: { select: { id: true, name: true, email: true } },
+            requestedBy: { select: { id: true, name: true } },
+          },
         },
-        team: {
-          select: { id: true, name: true },
-        },
+        team: { select: { id: true, name: true } },
       },
     })
 
@@ -103,12 +124,9 @@ class TasksController {
       throw new AppError('Task not found', 404)
     }
 
-    const isMember = await prisma.teamMember.findFirst({
-      where: { teamId: task.teamId, userId: request.user.id },
-    })
-
-    if (!isMember) {
-      throw new AppError('You are not a member of this team', 403)
+    if (request.user.role !== 'admin') {
+      const canAccess = await canAccessTask(request.user.id, id, task.teamId)
+      if (!canAccess) throw new AppError('You do not have access to this task', 403)
     }
 
     return response.json(task)
@@ -121,10 +139,11 @@ class TasksController {
 
     const bodySchema = z.object({
       status: z.enum(['pending', 'in_progress', 'completed']),
+      justification: z.string().trim().min(10).optional(),
     })
 
     const { id } = paramsSchema.parse(request.params)
-    const { status } = bodySchema.parse(request.body)
+    const body = bodySchema.parse(request.body)
 
     const task = await prisma.task.findUnique({ where: { id } })
 
@@ -132,21 +151,25 @@ class TasksController {
       throw new AppError('Task not found', 404)
     }
 
-    const isMember = await prisma.teamMember.findFirst({
-      where: { teamId: task.teamId, userId: request.user.id },
-    })
-
-    if (!isMember) {
-      throw new AppError('You are not a member of this team', 403)
+    if (request.user.role !== 'admin') {
+      const canAccess = await canAccessTask(request.user.id, id, task.teamId)
+      if (!canAccess) throw new AppError('You do not have access to this task', 403)
     }
 
-    if (task.status === status) {
+    if (task.status === body.status) {
       throw new AppError('Task already has this status', 400)
+    }
+
+    // Members must provide justification
+    if (request.user.role === 'member') {
+      if (!body.justification) {
+        throw new AppError('Justification is required', 400)
+      }
     }
 
     await prisma.task.update({
       where: { id },
-      data: { status },
+      data: { status: body.status },
     })
 
     await prisma.taskHistory.create({
@@ -154,7 +177,8 @@ class TasksController {
         taskId: id,
         changedBy: request.user.id,
         oldStatus: task.status,
-        newStatus: status,
+        newStatus: body.status,
+        justification: body.justification || null,
       },
     })
 
@@ -174,12 +198,9 @@ class TasksController {
       throw new AppError('Task not found', 404)
     }
 
-    const isMember = await prisma.teamMember.findFirst({
-      where: { teamId: task.teamId, userId: request.user.id },
-    })
-
-    if (!isMember) {
-      throw new AppError('You are not a member of this team', 403)
+    if (request.user.role !== 'admin') {
+      const canAccess = await canAccessTask(request.user.id, id, task.teamId)
+      if (!canAccess) throw new AppError('You do not have access to this task', 403)
     }
 
     const history = await prisma.taskHistory.findMany({
