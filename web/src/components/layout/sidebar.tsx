@@ -7,7 +7,7 @@ export function Sidebar() {
   const { user, signOut } = useAuth()
 
   return (
-    <aside className='w-64 h-screen flex flex-col border-r border-[var(--border)] bg-[var(--surface)]'>
+    <aside className='hidden md:flex w-64 h-screen flex-col border-r border-[var(--border)] bg-[var(--surface)]'>
       <div className='h-14 flex items-center px-5 border-b border-[var(--border)]'>
         <span
           className='text-base font-bold text-[var(--text)] tracking-wide'

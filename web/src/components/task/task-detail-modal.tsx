@@ -87,7 +87,7 @@ export function TaskDetailModal({ taskId, onClose }: TaskDetailModalProps) {
               <p className="text-xs font-medium text-[var(--text-muted)] mb-2 uppercase tracking-wider">
                 Status
               </p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {allStatuses.map((s) => (
                   <button
                     key={s}

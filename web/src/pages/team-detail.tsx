@@ -9,7 +9,7 @@ export function TeamDetailPage() {
   if (!id) return null
 
   return (
-    <div>
+    <div className="min-w-0">
       <button
         onClick={() => navigate('/dashboard')}
         className="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors mb-6 cursor-pointer"
