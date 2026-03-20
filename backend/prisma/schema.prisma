@@ -88,6 +88,7 @@ model TeamMember {
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@unique([userId, teamId])
+  @@index([userId])
   @@map("team_members")
 }
 
@@ -110,6 +111,9 @@ model Task {
   requests    TaskRequest[]
   assignments TaskAssignment[]
 
+  @@index([teamId])
+  @@index([status])
+  @@index([teamId, archived, deleted])
   @@map("tasks")
 }
 
@@ -125,6 +129,7 @@ model TaskHistory {
   task    Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
   changer User @relation(fields: [changedBy], references: [id], onDelete: Cascade)
 
+  @@index([taskId])
   @@map("tasks_history")
 }
 
@@ -162,5 +167,7 @@ model TaskAssignment {
   requestedBy User? @relation("AssignmentRequester", fields: [requestedById], references: [id], onDelete: SetNull)
 
   @@unique([taskId, userId])
+  @@index([userId])
+  @@index([status])
   @@map("task_assignments")
 }
