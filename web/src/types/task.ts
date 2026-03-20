@@ -1,4 +1,5 @@
 import type { User } from './user'
+import type { TaskAssignment } from './assignment'
 
 export type TaskStatus = 'pending' | 'in_progress' | 'completed'
 export type TaskPriority = 'low' | 'medium' | 'high'
@@ -10,16 +11,19 @@ export interface Task {
   status: TaskStatus
   priority: TaskPriority
   teamId: string
-  assignedTo: User | null
+  assignments: TaskAssignment[]
   createdAt: string
   updatedAt: string
+  archived: boolean
+  archivedAt: string | null
 }
 
 export interface TaskHistory {
   id: string
   taskId: string
-  fromStatus: TaskStatus | null
-  toStatus: TaskStatus
+  oldStatus: TaskStatus | null
+  newStatus: TaskStatus
   changedAt: string
   changer: User
+  justification: string | null
 }

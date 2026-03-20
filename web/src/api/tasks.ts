@@ -1,4 +1,4 @@
-import type { Task, TaskHistory, TaskStatus } from '@/types/task'
+import type { Task, TaskHistory } from '@/types/task'
 import { api } from '@/lib/axios'
 
 
@@ -13,7 +13,6 @@ export async function createTask(
     title: string
     description?: string
     priority: string
-    assignedToId?: string
   },
 ) {
   const response = await api.post<Task>(`/teams/${teamId}/tasks`, data)
@@ -25,9 +24,16 @@ export async function getTask(taskId: string) {
   return response.data
 }
 
-export async function updateTaskStatus(taskId: string, status: TaskStatus) {
-  const response = await api.patch<Task>(`/tasks/${taskId}/status`, { status })
-  return response.data
+export async function updateTaskStatus(
+  taskId: string,
+  status: string,
+  justification?: string,
+) {
+  const { data } = await api.patch(`/tasks/${taskId}/status`, {
+    status,
+    justification,
+  })
+  return data
 }
 
 export async function getTaskHistory(taskId: string) {

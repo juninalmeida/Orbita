@@ -18,7 +18,8 @@ export function useTaskDetail(taskId: string | null) {
   })
 
   const { mutate: changeStatus } = useMutation({
-    mutationFn: (status: TaskStatus) => updateTaskStatus(taskId!, status),
+    mutationFn: ({ status, justification }: { status: TaskStatus; justification?: string }) =>
+      updateTaskStatus(taskId!, status, justification),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', 'detail', taskId] })
       queryClient.invalidateQueries({ queryKey: ['tasks', 'history', taskId] })

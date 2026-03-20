@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getTeamTasks, createTask, updateTaskStatus } from '@/api/tasks'
-import type { TaskStatus } from '@/types/task'
 
 export function useTasks(teamId: string) {
   const queryClient = useQueryClient()
@@ -15,7 +14,6 @@ export function useTasks(teamId: string) {
       title: string
       description?: string
       priority: string
-      assignedToId?: string
     }) => createTask(teamId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', teamId] })
@@ -24,10 +22,10 @@ export function useTasks(teamId: string) {
   })
 
   const { mutate: changeStatus } = useMutation({
-    mutationFn: ({ taskId, status }: { taskId: string; status: TaskStatus }) =>
-      updateTaskStatus(taskId, status),
+    mutationFn: ({ taskId, status, justification }: { taskId: string; status: string; justification?: string }) =>
+      updateTaskStatus(taskId, status, justification),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', teamId] })
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
       queryClient.invalidateQueries({ queryKey: ['teams'] })
     },
   })
