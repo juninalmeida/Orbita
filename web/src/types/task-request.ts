@@ -15,6 +15,7 @@ export interface TaskRequest {
     id: string
     name: string
     email: string
+    avatar?: string | null
   }
   task?: {
     id: string
