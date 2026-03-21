@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { useTaskDetail } from '@/hooks/use-task-detail'
 import { useAdminTeamTasks, useAdminUsers } from '@/hooks/use-admin'
@@ -107,7 +108,7 @@ export function TaskDetailModal({
     })
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div
         className="rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col border border-white/[0.06] animate-[auth-fade-in_0.25s_ease-out]"
@@ -294,6 +295,7 @@ export function TaskDetailModal({
         }}
         onCancel={() => setPendingStatus(null)}
       />
-    </div>
+    </div>,
+    document.body,
   )
 }

@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form'
+import { createPortal } from 'react-dom'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { X } from 'lucide-react'
@@ -56,11 +57,11 @@ export function CreateTaskDrawer({
 
   if (!isOpen) return null
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="flex-1 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div
-        className="w-80 border-l border-white/[0.06] flex flex-col h-full animate-[slide-in_0.2s_ease-out]"
+        className="w-full max-w-80 border-l border-white/[0.06] flex flex-col h-full animate-[slide-in_0.2s_ease-out]"
         style={{
           background: 'linear-gradient(180deg, rgba(5, 12, 8, 0.96) 0%, rgba(2, 6, 4, 0.98) 100%)',
         }}
@@ -82,7 +83,7 @@ export function CreateTaskDrawer({
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 p-5 flex-1"
+          className="flex flex-col gap-4 p-5 flex-1 overflow-y-auto"
         >
           <Input
             id="title"
@@ -118,11 +119,12 @@ export function CreateTaskDrawer({
             </select>
           </div>
 
-          <Button type="submit" isLoading={isCreating} className="mt-auto">
+          <Button type="submit" isLoading={isCreating} className="mt-auto pb-safe">
             Criar tarefa
           </Button>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
