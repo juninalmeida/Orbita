@@ -49,15 +49,15 @@ O Orbita resolve o problema de organizar tarefas em equipe com rastreabilidade. 
 ┌─────────────────────────────────────────────────────────┐
 │                        Usuário                          │
 │                                                         │
-│   ┌─────────┐    ┌──────────┐    ┌───────────────┐     │
-│   │  Login  │───>│ Dashboard│───>│  Kanban Board  │     │
-│   │Register │    │  (times) │    │ (tarefas/time) │     │
-│   └─────────┘    └──────────┘    └───────┬───────┘     │
+│   ┌─────────┐    ┌──────────┐    ┌───────────────┐      │
+│   │  Login  │───>│ Dashboard│───>│  Kanban Board │      │
+│   │Register │    │  (times) │    │ (tarefas/time)│      │
+│   └─────────┘    └──────────┘    └───────┬───────┘      │
 │                                          │              │
 │                              ┌───────────┴───────────┐  │
-│                              │    Task Detail Modal   │  │
-│                              │ status + justificativa │  │
-│                              │ history + assignments  │  │
+│                              │    Task Detail Modal  │  │
+│                              │ status + justificativa│  │
+│                              │ history + assignments │  │
 │                              └───────────────────────┘  │
 └─────────────┬───────────────────────────────────────────┘
               │
@@ -67,16 +67,16 @@ O Orbita resolve o problema de organizar tarefas em equipe com rastreabilidade. 
 ┌─────────────┴───────────────────────────────────────────┐
 │                     Orbita API                          │
 │                                                         │
-│   ┌──────────┐    ┌──────────┐    ┌──────────────┐     │
-│   │  Routes  │───>│Controllers│──>│   Services   │     │
-│   │  + Rate  │    │  + Zod   │    │  (regras de  │     │
-│   │  Limit   │    │ validation│   │   negócio)   │     │
-│   └──────────┘    └──────────┘    └──────┬───────┘     │
+│   ┌──────────┐    ┌──────────┐    ┌──────────────┐      │
+│   │  Routes  │───>│Controllers│──>│   Services   │      │
+│   │  + Rate  │    │  + Zod   │    │  (regras de  │      │
+│   │  Limit   │    │ validation│   │   negócio)   │      │
+│   └──────────┘    └──────────┘    └──────┬───────┘      │
 │                                          │              │
-│   ┌──────────┐    ┌──────────┐    ┌──────┴───────┐     │
-│   │  Helmet  │    │   CORS   │    │    Prisma    │     │
-│   │ (headers)│    │(WEB_URL) │    │ (PostgreSQL) │     │
-│   └──────────┘    └──────────┘    └──────────────┘     │
+│   ┌──────────┐    ┌──────────┐    ┌──────┴───────┐      │
+│   │  Helmet  │    │   CORS   │    │    Prisma    │      │
+│   │ (headers)│    │(WEB_URL) │    │ (PostgreSQL) │      │
+│   └──────────┘    └──────────┘    └──────────────┘      │
 └─────────────────────────────────────────────────────────┘
 ```
 
