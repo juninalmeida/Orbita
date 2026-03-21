@@ -1,9 +1,10 @@
 import { AppRoutes } from '@/routes'
+import { ErrorBoundary } from '@/components/error-boundary'
 import { Toaster } from 'sonner'
 
 export function App() {
   return (
-    <>
+    <ErrorBoundary>
       <AppRoutes />
       <Toaster
         position="bottom-right"
@@ -15,6 +16,6 @@ export function App() {
           },
         }}
       />
-    </>
+    </ErrorBoundary>
   )
 }
